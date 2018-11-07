@@ -1,0 +1,100 @@
+---
+title: "HW4"
+author: "Corey Kuhn"
+date: "10/25/2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+1)a) In the Residuals vs Fitted plot, the variance looks fairly constant. For the most part, the residuals fall between -50 and 50.
+```{r}
+library(faraway)
+data(sat)
+fit <- lm(total~expend+salary+ratio+takers,data=sat)
+plot(fit)
+```
+
+1)b) Looking at the Normal Q-Q plot, the residuals have some heavy tails, but most of the points fall along the line, so there is not strong evidence against the normality assumption.
+
+1)c) Looking at the Influence Plot, the points with hat values between .2 and .3 (Utah, Connecticut, New Jersey, and California) all appear to have high leverage, since they have high hat-values.
+```{r}
+library(car)
+cutoff = 4/((nrow(sat)-length(fit$coefficients)-2))
+influencePlot(fit, id.method="identify", main="Influence Plot",
+sub="Circle size is proportial to Cook's Distance" )
+```
+
+1)d) We can see in the Residuals vs Fitted plot that there may be a few outliers in the $y$ direction. It looks like New Hampshire, North Dakota, and West Virginia may be outliers, since they are far from the other residuals. In the $x$ direction, the same 4 points with high leverage may be outliers, since they are all far from the other points.
+
+1)e) The Influence Plot shows that of the 4 points with high leverage, or potential of being influential, only one of them appears to actually have high influence (Utah), since the circle is much biggger than any of the other circles. Since circle size represents Cook's Distance, those points with bigger circle will represent influential points.
+
+1)f) Looking at the Added-Variable Plots, expend and salary do not seem to have a relationship with total SAT score, since there is not clear pattern in the plots. Ratio appears to have a relationship with total SAT score, but the relationship does not look linear. There is a slight quadratic relationship maybe. Takers is the only variable in the model with a strong linear relationship with total SAT score. 
+```{r}
+library(car)
+avPlots(fit)
+```
+
+1)g) The ANOVA table shows that in this specific order of including variables in the model, all predictors are significant. Expend is significant, salary is significant given expend is already in the model, ratio is significant given expend and salary is already in the model, and takers is significant given the other 3 variables are already in the model. This is surprising, since the AV plots suggested expend and salary do not have a strong identifiable relationship with total SAT score. However, this may be explained by the order of the predictor variables. Perhaps if we entered takers first into the model since it has the strongest linear relationship with total SAT score, the other variables would become insignificant given takers is already in the model.
+```{r}
+anova(fit)
+```
+
+2) The blue line is the model fitted without the high leverage point and the red line is the model fitted with the high leverage point. We can see that the one point has a very high influence on the fit of the regression line, even though the point is not an outlier in the x or y direction, since the slope changes greatly depending on the inclusion or omission of that single point. In other words, the single point has a great effect on the linear relationship between $x$ and $y$, as summarized by the estimated $\hat\beta$.
+```{r}
+x_m1 <- c(.1,.34,.34,.54,.56,.78,.9,.95,.98,1)
+y_m1<- c(.1,.34,.34,.54,.56,.78,.9,.95,.15,1)
+x_m2 <- c(.1,.34,.34,.54,.56,.78,.9,.95,1)
+y_m2<- c(.1,.34,.34,.54,.56,.78,.9,.95,1)
+plot(x_m1,y_m1)
+abline(lm(y_m1~x_m1),col="red")
+abline(lm(y_m2~x_m2),col="blue")
+```
+
+
+7.28)a) (1) $SSR(X_5|X_1)=SSE(X_1)-SSE(X_1,X_5)$
+
+(2) $SSR(X_3,X_4|X_1)=SSE(X_1)-SSE(X_1,X_3,X_4)$
+
+(3) $SSR(X_4|X_1,X_2,X_3)=SSE(X_1,X_2,X_3)-SSE(X_1,X_2,X_3,X_4)$
+
+
+7.28)b) $SSR(X_5|X_1,X_2,X_3,X_4)=SSE(X_1,X_2,X_3,X_4)-SSE(X_1,X_2,X_3,X_4,X_5)$
+
+$SSR(X_2,X_4|X_1,X_3,X_5)=SSE(X_1,X_3,X_5)-SSE(X_1,X_2,X_3,X_4,X_5)$
+
+
+7.29)a) 
+
+$SSTO=SSR(X_1)+SSE(X_1)$
+
+$=SSR(X_1)+SSR(X_2|X_1)+SSE(X_1,X_2)$
+
+$=SSR(X_1)+SSR(X_2|X_1)+SSR(X_3|X_1,X_2)+SSE(X_1,X_2,X_3)$
+
+$=SSR(X_1)+SSR(X_2|X_1)+SSR(X_3|X_1,X_2)+SSR(X_4|X_1,X_2,X_3)+SSE(X_1,X_2,X_3,X_4)$
+
+$=SSR(X_1)+\Big[SSE(X_1)-SSE(X_1,X_2)\Big]+\Big[SSE(X_1,X_2)-SSE(X_1,X_2,X_3)\Big]+SSR(X_4|X_1,X_2,X_3)+SSE(X_1,X_2,X_3,X_4)$
+
+$=SSR(X_1)+\Big[SSE(X_1)-SSE(X_1,X_2,X_3)\Big]+SSR(X_4|X_1,X_2,X_3)+SSE(X_1,X_2,X_3,X_4)$
+
+$=SSR(X_1)+\Big[SSR(X_2,X_3|X_1)\Big]+SSR(X_4|X_1,X_2,X_3)+SSE(X_1,X_2,X_3,X_4)$
+
+Thus, 
+
+$SSR(X_1,X_2,X_3,X_4)=SSR(X_1)+SSR(X_2,X_3|X_1)+SSR(X_4|X_1,X_2,X_3)$.
+
+7.29)b) Using result above, we must show that 
+
+$SSR(X_1)+SSR(X_2,X_3|X_1)=SSR(X_2,X_3)+SSR(X_1|X_2,X_3)$:
+
+$SSR(X_1)+\Big[SSE(X_1)-SSE(X_1,X_2,X_3)\Big]=SSR(X_2,X_3)+\Big[SSE(X_2,X_3)-SSE(X_1,X_2,X_3)\Big]$
+
+$SSR(X_1)+SSE(X_1)=SSR(X_2,X_3)+SSE(X_2,X_3)$
+
+$SSTO=SSTO$.
+
+
+
+

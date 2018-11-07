@@ -1,0 +1,51 @@
+---
+title: "HW3"
+author: "Corey Kuhn"
+date: "10/11/2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1)a) Looking at the plot, the best fit line for virginica has the steepest slope of the 3 groups, with an estimated intercept less than the other 2 groups. The best fit line for versicolor has a slightly less steep estimated slope than the virginica group, with an intercept estimate between the other 2 groups. The best fit line for setosa has the least steep estimated slope of the 3 groups, with an estimated intercept greater than the other 2 groups.
+```{r }
+plot(iris$Petal.Length,iris$Sepal.Length,main="Species",col=c("red","blue","green")[iris$Species])
+setosa <- iris[iris$Species=="setosa",]
+versicolor <- iris[iris$Species=="versicolor",]
+virginica <- iris[iris$Species=="virginica",]
+abline(lm(setosa$Sepal.Length~setosa$Petal.Length), col="red")
+abline(lm(versicolor$Sepal.Length~versicolor$Petal.Length), col="blue")
+abline(lm(virginica$Sepal.Length~virginica$Petal.Length), col="green")
+```
+
+1)b) $\hat\beta_0=4.36531$, which means that the expected value of sepal length is 4.36531 cm when petal length is 0 cm. $\hat\beta_1=0.40824$, which means that the expected increase in sepal length is 0.40824 cm for each cm increase in petal length.
+```{r}
+sub <- iris[which(iris$Species %in% c("setosa","virginica")),]
+m1 <- lm(sub$Sepal.Length~sub$Petal.Length)
+summary(m1)
+```
+
+1)c) $\hat\beta_0=3.60996$, which means that the expected value of sepal length is 3.60996 cm when petal length is 0 cm and species is setosa. $\hat\beta_1=0.95489$, which means that the expected increase in sepal length is 0.95489 cm for each cm increase in petal length, holding species constant. $\hat\beta_2=-2.32348$, which means that the expected change in sepal length is -2.32348 cm when species changes from setosa to virginica, holding petal length constant.
+```{r}
+m2 <- lm(sub$Sepal.Length~sub$Petal.Length+sub$Species)
+summary(m2)
+```
+
+1)d) $\hat\beta_0=4.2132$, which means that the expected value of sepal length is 4.2132 cm when petal length is 0 cm and species is setosa. $\hat\beta_1=0.5423$, $\hat\beta_2=-3.1535$, and $\hat\beta_3=0.4534$. If species is setosa, for each cm increase in petal length, the exepected increase in sepal length is $\hat\beta_1=0.5423$ cm. If species is virginica, for each cm increase in petal length, the expected increase in sepal length is $\hat\beta_1+\hat\beta_3=0.5423+0.4534=0.9957$ cm. The expected change in sepal length is $\hat\beta_2=-3.1535$ cm when species changes from setosa to virginica, holding petal length constant.
+```{r}
+m3 <- lm(sub$Sepal.Length~sub$Petal.Length+sub$Species+sub$Petal.Length*sub$Species)
+summary(m3)
+```
+
+1)e) $R^2(m1)=0.8187$, $R^2(m2)=0.8763$, and $R^2(m3)=0.8794$. Yes, this is to be expected because $R^2$ always increases as more predictors are added to the model. No, this does not necessarily mean the models are getting better. For instance, even though we might have a very high $R^2$ value, our model may overfit the data and may not be very useful for us. A model with a less $R^2$ value may be more useful.
+
+6.2)a) $X = \begin{bmatrix}x_{11} & x_{12} & x_{11}^2 \\ x_{21} & x_{22} & x_{21}^2\\ x_{31} & x_{32} & x_{31}^2 \\ x_{41} & x_{42} & x_{41}^2 \\x_{51} & x_{52} & x_{51}^2 \end{bmatrix}$ $\beta = \begin{bmatrix} \beta_1 \\ \beta_2 \\  \beta_3 \end{bmatrix}$
+
+6.2)b) $X = \begin{bmatrix}1 & x_{11} & log_{10}x_{12} \\ 1 & x_{21} & log_{10}x_{22} \\ 1 & x_{31} & log_{10}x_{32} \\ 1 & x_{41} & log_{10}x_{42} \\1 & x_{51} & log_{10}x_{52} \end{bmatrix}$ $\beta = \begin{bmatrix} \beta_0 \\ \beta_1 \\  \beta_2 \end{bmatrix}$
+
+6.3) A model with the highest $R^2$ value alone does not indicate that is the best model. Also, we like to keep our models as simple as possible, and as we add more and more predictors, the model becomes more complicated. So just because $R^2$ always increases as more predictors are added does not necessarily mean that we should inlcude all predictor variables in the model.
+
+
+

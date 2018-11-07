@@ -1,0 +1,54 @@
+---
+title: "HW8"
+author: "Corey Kuhn"
+date: "12/6/2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1) 
+```{r}
+library(stats)
+library(KernSmooth)
+library(locfit)
+library(locpol)
+library(sm)
+library(NonpModelCheck)
+X = runif(100,-3,3)
+Y = sin(1/2*pi*X) + rnorm(100,0,.5)
+dat <- cbind(X,Y)
+dat <- dat[order(X),]
+# loess
+m1 <- loess(Y~X, degree=0)
+pred1 <- predict(m1)
+# locpoly
+m2 <- locpoly(X,Y,degree=0,bandwidth=.5)
+# locfit
+m3 <- locfit(Y~X)
+# locpol
+df <- data.frame(dat)
+m4 <- locpol(Y~X,df,deg=)
+# sm.regression
+m5 <- sm.regression(df$X,df$Y)
+# localpoly.reg 
+m6 <- localpoly.reg(X,Y,degree.pol=0)
+m6df <- cbind(m6$x,m6$predicted)
+m6df <- m6df[order(m6df[,1]),]
+# ksmooth
+m7 <- ksmooth(X,Y)
+# plots
+plot(X,Y,ylim=range(-3:2.5))
+lines(m1$fitted, x=dat[,1], col="red")
+lines(m2,col="blue")
+lines(m3, col="green")
+lines(m4$lpFit$Y,x=dat[,1], col="purple")
+lines(m5$data$y,x=m5$data$x, col="orange")
+lines(m6df[,2], x=m6df[,1], col="brown")
+lines(m7, col="grey")
+legend(0.25, -.5, legend=c("loess", "locpoly","locfit","locpol","sm.regression","localpoly.reg","ksmooth"),
+       col=c("red", "blue","green","purple","orange","brown","grey"), lty=1, cex=0.8)
+```
+

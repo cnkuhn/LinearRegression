@@ -1,0 +1,103 @@
+---
+title: "HW7"
+author: "Corey Kuhn"
+date: "11/24/2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+1)a) $\hat{\beta}_{mpg}=1.25961$: For each unit increase in mpg, the odds that a car has a manual transmission is multiplied by an expected value of $e^{1.25961}=3.5240$, holding hp constant. $\hat{\beta}_{hp}=0.05504$: For each unit increase in hp, the odds that a car has a manual transmission is multiplied by an expected value of $e^{0.05504}=1.0566$, holding mpg constant.
+```{r}
+data(mtcars)
+m1 <- glm(am~mpg+hp, data=mtcars,family=binomial())
+summary(m1)
+```
+
+1)b) The ratio of odds of a car being manual comparing two cars that differ in mpg by 1 units while holding horsepower constant is $e^{1.25961}=3.5240$.
+```{r}
+odds1 <- exp(-33.60517+1.25961*1+0.05504*180)/(1+exp(-33.60517+1.25961*1+0.05504*180))
+odds2 <- exp(-33.60517+1.25961*0+0.05504*180)/(1+exp(-33.60517+1.25961*0+0.05504*180))
+or <- odds1/odds2
+or
+```
+
+1)c) c.	The predicted probability that a car is automatic if it has hp = 180 and mpg = 20 is 0.8167123.
+```{r}
+hp<-180
+mpg<-20
+exp(-33.60517+1.25961*mpg+0.05504*hp)/(1+exp(-33.60517+1.25961*mpg+0.05504*hp))
+```
+
+2) Looking at the main effects, the two variables selected through the stepwise selection method include gear and wt. In other words according to stepwise selection, a model with only gear and wt as predictors resulted in the lowest AIC. To check the significance of interaction between these two predictor variables and quadratic terms, we create a full model including the two predictors, the interaction between the two, and the sqaured values of the two predictors. Then we run an anova on the model containing just the two predictors and the model containing the two predictors, the interaction, and the quadratic terms. The anova procedure resulted in a high p-value, so we fail to reject the null hypothesis that the beta coefficients for the interaction term and each of the two quadratic terms are all equal to 0. Therefore, we choose the model only including the two main effects, gear and wt.
+```{r, warning=FALSE}
+library(MASS) # for stepAIC function
+null <- glm(am~1,data=mtcars,family=binomial())
+form <- formula(paste("am~",paste(names(mtcars)[-9],collapse="+"),sep=""))
+# model with main effecrs
+step <- stepAIC(null,scope=form,direction="both")
+# model with interaction, quadratic terms
+mtcars$gear_sq <- mtcars$gear^2
+mtcars$wt_sq <- mtcars$wt^2
+full <- glm(am~gear+wt+gear*wt+gear_sq+wt_sq,data=mtcars,family=binomial())
+# test significance of interactions and quadratic terms together
+anova(step,full,test="LRT")
+```
+
+
+<!-- library(car) -->
+<!-- # Create quadratic terms -->
+<!-- mtcars2 <- mtcars -->
+<!-- mtcars2 <- cbind(mtcars, mtcars2[,c(which(names(mtcars2)!="am"))]^2)  -->
+<!-- names(mtcars2) <- make.unique(names(mtcars2)) -->
+<!-- # Create model with quadratics and 2-way interactions -->
+<!-- form_interactions <- formula(paste("am~",paste(names(mtcars2)[c(1:11)][-9],collapse="*"),sep="")) -->
+<!-- form_all <- paste("am~",paste(names(mtcars2)[c(1:11)][-9],collapse="*"),sep="") -->
+<!-- form_all <- formula(paste(form_all,paste(names(mtcars2)[12:21],collapse="+"),sep="+")) -->
+<!-- m_full <- glm(form_all,data=mtcars2,family=binomial()) -->
+<!-- # paste quadratics -->
+<!-- paste(names(mtcars2)[12:21],collapse="+",sep="") -->
+<!-- # paste interactions -->
+<!-- paste(names(mtcars2)[c(1:11)][-9],collapse="*") -->
+<!-- vif(m1) -->
+
+<!-- # choose main effects -->
+<!-- library(MASS) # for stepAIC function -->
+<!-- mtcars2 <- cbind(mtcars, mtcars2[,c(which(names(mtcars2)!="am"))]^2) -->
+<!-- names(mtcars2) <- make.unique(names(mtcars2)) -->
+<!-- mtcars3 <- cbind(mtcars, mtcars2[,c(which(names(mtcars2)!="am"))]^2) -->
+
+
+<!-- for(i in names(mtcars)[which(names(mtcars)!="am")]){ -->
+<!--   form <- formula(paste("am~",i)) -->
+<!--   a[[which(names(mtcars)==i)]] <- glm(form,data=mtcars,family=binomial()) -->
+<!-- } -->
+
+<!-- mpg <- glm(am~mpg,data=mtcars,family=binomial()) -->
+<!-- cyl <- glm(am~cyl,data=mtcars,family=binomial()) -->
+<!-- disp <- glm(am~disp,data=mtcars,family=binomial()) -->
+<!-- hp <- glm(am~hp,data=mtcars,family=binomial()) -->
+<!-- drat <- glm(am~drat,data=mtcars,family=binomial()) -->
+<!-- wt <- glm(am~wt,data=mtcars,family=binomial()) -->
+<!-- qsec <- glm(am~qsec,data=mtcars,family=binomial()) -->
+<!-- vs <- glm(am~vs,data=mtcars,family=binomial()) -->
+<!-- gear <- glm(am~gear,data=mtcars,family=binomial()) -->
+<!-- carb <- glm(am~carb,data=mtcars,family=binomial()) -->
+
+<!-- form <- formula(paste("am~",paste(names(mtcars)[-9],collapse="+"),sep="")) -->
+
+
+
+
+<!-- form_main <- formula(paste("am~",paste(names(mtcars)[which(names(mtcars)!="am")],collapse="+"),sep="")) -->
+<!-- m_interactions <-  -->
+<!-- m_null <- glm(am~1,data=mtcars,family=binomial()) -->
+<!-- m_main <- stepAIC(m_null,scope=form_main,direction="both") -->
+<!-- # Test quadratic terms and interactions -->
+<!-- m_full <- glm(am~gear+wt,data=mtcars,family=binomial()) -->
+
+
+
+
+

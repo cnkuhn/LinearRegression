@@ -1,0 +1,49 @@
+---
+title: "HW5"
+author: "Corey Kuhn"
+date: "11/2/2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+1) We can see in the output that the shrinkage parameter $\lambda$ is smallest in the LASSO method with a value of 0.003329527, largest for the Ridge method with a value of 0.08057883, and in between for Net with a value of 0.005528464. In LASSO, there are 4 predictors with estimated coefficients of 0: CFMG, PREP, FAMI, and ORAL. Thus, only 7 predictors are included in this model. In Ridge, however, none of the parameter estimates have a value of 0; all the predictors have estimated coefficients different from 0, so all 11 predictors are included in this model. For the Net model, 3 predictors have estimated coefficients of 0: CFMG, PREP, and ORAL. So 8 predictors are included in this model. These observations are consistent in the plots of the coefficients for each model. We see in the LASSO plot, sometimes some of the coefficients for certain predictors are estimated to be 0, but we generally see that as the L1 Norm increases, more predictors have coefficient estimates different from 0, so more predictors are included in the model. In the plot of Ridge, we see that rarely ever are the coefficient estimations 0. We see that no matter the value of L1 Norm, all 11 coefficient estimates are different than 0, which means all 11 predictors are always included in the model. The Net plot looks more similar to the LASSO plot than the Ridge plot, since sometimes the coefficient estimates are 0, and not always will all 11 predictors be included in the model. Similar to LASSO, as L1 Norm increases, the number of coefficients different from 0 increases, leading to more predictors being included in the model.
+
+LASSO
+```{r}
+dat <- USJudgeRatings
+library(glmnet)
+x <- as.matrix(dat[,-2])
+y <- dat[,2]
+cvlasso <- cv.glmnet(x,y,alpha=1)
+lasso <- glmnet(x,y,alpha=1)
+cvlasso$lambda.min
+glmnet(x,y,alpha=1,lambda=cvlasso$lambda.min)$beta
+plot(lasso,main="LASSO")
+
+```
+
+RIDGE
+```{r}
+#Ridge
+cvridge <- cv.glmnet(x,y,alpha=0)
+ridge <- glmnet(x,y,alpha=0)
+cvridge$lambda.min
+glmnet(x,y,alpha=0,lambda=cvridge$lambda.min)$beta
+plot(ridge,main="Ridge")
+abline(a=0,b=0)
+```
+
+Elastic Net Regression w/ alpha=0.5
+```{r}
+cvnet <- cv.glmnet(x,y,alpha=0.5)
+net <- glmnet(x,y,alpha=0.5)
+cvnet$lambda.min
+glmnet(x,y,alpha=0.5,lambda=cvnet$lambda.min)$beta
+plot(net,main="Net")
+```
+
+

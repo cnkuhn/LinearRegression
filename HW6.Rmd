@@ -1,0 +1,78 @@
+---
+title: "HW6"
+author: "Corey Kuhn"
+date: "11/14/2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1)a) Forward selection: include wt, cyl, hp in model
+```{r}
+data(mtcars)
+form <- formula(paste("mpg~",paste(names(mtcars)[-1],collapse="+"),sep=""))
+full <- lm(form,data=mtcars)
+null <- lm(mpg~1,data=mtcars)
+library(MASS)
+forward <- stepAIC(null,scope=form,direction="forward")
+extractAIC(forward,k=2)[2] # aic
+extractAIC(forward, k=log(nrow(mtcars)))[2] #bic
+```
+
+1)b) Backward elimination: include wt, qsec, am in model
+```{r}
+backward <- stepAIC(full,direction="backward")
+extractAIC(backward,k=2)[2] #aic
+extractAIC(backward, k=log(nrow(mtcars)))[2] #bic
+```
+
+1)c) Stepwise: include wt, cyl, hp in model
+```{r}
+step <- stepAIC(null,scope=form,direction="both")
+extractAIC(step,k=2)[2] #aic
+extractAIC(step, k=log(nrow(mtcars)))[2] #bic
+```
+
+1)d) The AIC for the models generated from forward selection, backward selection, and stepwise is 62.66456, 61.3073, and 62.66456, respectively. The BIC for each model is 68.52751, 67.17025, and 68.52751. Lastly, the 5-fold MPE for each model is 5.519391, 5.290185, and 5.519391. Forward selection and stepwise resulted in the same model, and therefore the AIC, BIC, and MPE is the same for these two models. The AIC, BIC, and MPE for the model generated from backward elimination are all lower than for the models generated from forward selection or stepwise, so this would be considered the better model with respect to these 3 measurements, since we want to minimize each.
+```{r}
+mtcarsRandom <- mtcars[order(runif(nrow(mtcars))),]
+rand <- mtcars[sample(1:nrow(mtcars)),]
+rand$fold <- c(rep(1:5,6),1,2)
+# calculate mpe for Forward Selection
+sspeF <- c(rep(NA,5))
+for(i in 1:5){
+  holdout <- subset(rand,fold==i)
+  train <- subset(rand,fold!=i)
+  yhat <- predict(forward,newdata=holdout)
+  y <- holdout$mpg
+  sspeF[i] <- sum((y-yhat)^2)
+}
+mpeF <- sum(sspeF)/nrow(rand)
+mpeF
+# calculate mpe for Backward Elimination
+sspeB <- c(rep(NA,5))
+for(i in 1:5){
+  holdout <- subset(rand,fold==i)
+  train <- subset(rand,fold!=i)
+  yhat <- predict(backward,newdata=holdout)
+  y <- holdout$mpg
+  sspeB[i] <- sum((y-yhat)^2)
+}
+mpeB <- sum(sspeB)/nrow(rand)
+mpeB
+# calculate mpe for Stepwise
+sspeS <- c(rep(NA,5))
+for(i in 1:5){
+  holdout <- subset(rand,fold==i)
+  train <- subset(rand,fold!=i)
+  yhat <- predict(step,newdata=holdout)
+  y <- holdout$mpg
+  sspeS[i] <- sum((y-yhat)^2)
+}
+mpeS <- sum(sspeS)/nrow(rand) # divide by # folds instead of nrow(rand)
+mpeS
+```
+
+

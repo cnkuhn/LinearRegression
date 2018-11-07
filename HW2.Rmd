@@ -1,0 +1,67 @@
+---
+title: "HW2"
+author: "Corey Kuhn"
+date: "9/25/2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1) The student is fairly accurate in the interpretation of $\hat{\beta_1}=-.18$. As the student suggests, the slop estimate suggests that for each unit increase in advertising expenditures, the expected sales decreases by .18. However in this context, a negative relationship between these two variables does not make much sense. Also, a p-value of .91 is very large, suggesting the coefficient estimate is not significant. With such a large p-value, we have little evidence to reject the null hypothesis of $\beta_1=0$. So, we should not place too much trust in the estimate of $\beta_1$ here.
+
+2) Iris dataset - gives the measurements in cm of sepal length and width and petal length and width for 50 flowers from each of 3 species of iris (150 observations total). I will use sepal length (predictor) and petal length (response).
+
+a) $\hat{\beta_0}=-7.101$: The expected value of petal length is -7.101 cm when sepal length is 0. $\hat{\beta_1}=1.858$: The expected increase in petal length is 1.858 cm for each cm increase in sepal length.
+
+```{r}
+dat <- iris[,c(1,3)]
+m1 <- lm(Petal.Length~Sepal.Length,data=iris)
+m1
+plot(iris$Sepal.Length,iris$Petal.Length,main="Iris")
+abline(lm(Petal.Length~Sepal.Length,data=iris))
+```
+
+b) $H_0:\beta_{sepal.length}=0$ vs. $H_1:\beta_{sepal.length}\neq0$. We see from the summary output that $t=21.65$ with a p-value of <2e-16. Because we obtained a p-value less than $\alpha=0.05$, we reject the null hypothesis and conclude there is sufficient evidence to believe that there is a linear relationship between petal length and sepal length.
+```{r}
+summary(m1)
+```
+
+c) Looking at the summary output, we also see that the F statistic is 468.6, with 1 and 148 degrees of freedom, with a p-value of <2.2e-16. Since the hypotheses for an F test in this situation are the same as the hypotheses in part b) and since we obtained the same p-value for the F test as in part b), we can see that the two tests are equivalent.
+
+d) $R^2=0.76$, which means that about 76% of the variability among the observed values of petal length is explained by the linear relationship between petal length and sepal length.
+
+e) $CI_{95\%}(\beta_0)$: (-8.102670,-6.100217), $CI_{95\%}(\beta_1)$: (1.688772,2.028094).
+```{r}
+confint(m1)
+```
+
+f) 
+```{r}
+beta0_hat <- as.numeric(coef(m1)[1])
+beta1_hat <- as.numeric(coef(m1)[2])
+X <- dat[,1]
+n <- length(X)
+F <- qf(.95, df1=2, df2=n-2) 
+W <- sqrt(2*F)
+mse <- mean(m1$residuals^2)
+dat$pred <- predict(m1,interval="confidence")[,1]
+dat$pred_lwr <- beta0_hat + beta1_hat*X - W*sqrt(mse)*sqrt((1/n)+(X-mean(X))^2/sum((X-mean(X))^2))
+dat$pred_upr <- beta0_hat + beta1_hat*X + W*sqrt(mse)*sqrt((1/n)+(X-mean(X))^2/sum((X-mean(X))^2))
+plot(dat$Sepal.Length,dat$pred, type="l", main="Confidence Band")
+lines(dat$Sepal.Length[order(dat$Sepal.Length)],dat$pred_lwr[order(dat$Sepal.Length)], col="red")
+lines(dat$Sepal.Length[order(dat$Sepal.Length)],dat$pred_upr[order(dat$Sepal.Length)], col="red")
+```
+
+g) For a new observation of sepal length, $x_{new}=6.25$ cm, the predicted petal length is $y_{new}=4.513763$ cm with a 95% confidence interval of (2.791765,6.235761).
+```{r}
+new <-data.frame("Sepal.Length"=6.25)
+predict(m1,new,interval="prediction")
+```
+
+h) In the plot of sepal length against the residuals and the plot of the fitted values against the residuals, we do not see an obvious pattern. It looks like mostly noise, which is good because it means that there is not a strong relationship that was missed by the linear model; the linear model captured most of the relationship between sepal length and petal length. In these plots, there also does not seem to be a clear issue with non-constant variance. The variance looks approximately constant, or perhaps slightly decreasing, but not enough to be concerned about. Looking at the Q-Q plot, most of the points fall on the line, with only a slightly heavy tail. Again, this is not drastic enough to be concerned, so this shows the data is approximately normal. 
+```{r}
+plot(dat$Sepal.Length, m1$residuals)
+plot(m1)
+```
